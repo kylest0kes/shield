@@ -1,5 +1,5 @@
-package com.shield.server;
+// package com.shield.server;
 
-public class ServerTest {
+// public class ServerTest {
     
-}
+// }
