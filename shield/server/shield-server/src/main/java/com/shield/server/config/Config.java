@@ -1,3 +1,4 @@
+// modifications needed before launch!
 package com.shield.server.config;
 
 import org.springframework.context.annotation.Configuration;
