@@ -24,5 +24,8 @@ public class MessagePayload {
     @NotBlank(message = "Sender ID is required")
     private String senderId;
 
+    @NotBlank(message = "Recipient ID is required")
+    private String recipientId;
+
     private String messageType;
 }

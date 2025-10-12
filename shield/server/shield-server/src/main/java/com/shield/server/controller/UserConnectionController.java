@@ -6,12 +6,14 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import com.shield.server.model.MessagePayload;
 import com.shield.server.service.MessageService;
 
 @Controller
@@ -59,5 +61,33 @@ public class UserConnectionController {
             System.out.println("User disconnected: " + userId);
         }
     }
+
+    /**
+     * Handle inbound messages from clients at destination /app/send
+     */
+   @MessageMapping("/send") 
+   public void handleIncomingMessage(MessagePayload message, Principal principal) {
+        if (principal == null) {
+            // Handle unauthenticated user case
+            System.err.println("Unauthorized message rejected");
+            return;
+        }
+   
+        String senderId = principal.getName();
+        messageService.processAndRouteMessage(senderId, message);
+   }
+
+   /**
+     * Utility method to send a message to a connected user
+     * Uses MessageService if needed
+     */
+   public void sendMessageToUser(String recipientId, MessagePayload message) {
+        String sessionId = userSessions.get(recipientId);
+        if (sessionId != null) {
+            messagingTemplate.convertAndSendToUser(sessionId, "/queue/messages", message);
+        } else {
+            messageService.saveOfflineMessage(recipientId, message);
+        }
+   }
 
 }
