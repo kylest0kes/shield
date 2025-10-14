@@ -4,6 +4,8 @@ import java.security.Principal;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -19,6 +21,8 @@ import com.shield.server.service.MessageService;
 @Controller
 public class UserConnectionController {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserConnectionController.class);
+    
     // In-memory user-to-session map for rapid dev; replace with distributed store for production
     private final ConcurrentMap<String, String> userSessions = new ConcurrentHashMap<>();
 
@@ -41,8 +45,7 @@ public class UserConnectionController {
         if (userId != null) {
             String sessionId = sha.getSessionId();
             userSessions.put(userId, sessionId);
-            // Remove log statement in production
-            System.out.println("User connected: " + userId + " with session ID: " + sessionId);
+            logger.info("User connected: {} with session ID: {}", userId, sessionId);
         }
     }
 
@@ -57,8 +60,7 @@ public class UserConnectionController {
 
         if (userId != null) {
             userSessions.remove(userId);
-            // Improve log statement using SLF4J in production
-            System.out.println("User disconnected: " + userId);
+            logger.info("User {} disconnected", userId);
         }
     }
 
@@ -69,7 +71,7 @@ public class UserConnectionController {
     public void handleIncomingMessage(MessagePayload message, Principal principal) {
         if (principal == null) {
             // Handle unauthenticated user case
-            System.err.println("Unauthorized message rejected");
+            logger.error("Unauthorized message rejected");
             return;
         }
 
@@ -94,8 +96,7 @@ public class UserConnectionController {
                 messageService.saveOfflineMessage(message.getRecipientId(), message);
             }
         } else {
-            // Handle broadcast or invalid message scenario, replace with SLF4J in production
-            System.err.println("No valid recipient or group for message");
+            logger.error("No valid recipient or group for message");
         }
     }
 
