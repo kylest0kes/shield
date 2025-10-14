@@ -15,8 +15,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import com.shield.server.exception.UnauthorizedException;
 import com.shield.server.model.MessagePayload;
 import com.shield.server.service.MessageService;
+
+import jakarta.validation.Valid;
 
 @Controller
 public class UserConnectionController {
@@ -68,11 +71,10 @@ public class UserConnectionController {
      * Handle inbound messages from clients at destination /app/send
      */
     @MessageMapping("/send")
-    public void handleIncomingMessage(MessagePayload message, Principal principal) {
+    public void handleIncomingMessage(@Valid MessagePayload message, Principal principal) {
         if (principal == null) {
             // Handle unauthenticated user case
-            logger.error("Unauthorized message rejected");
-            return;
+            throw new UnauthorizedException("User not authenticated");
         }
 
         String senderId = principal.getName();
