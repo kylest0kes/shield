@@ -112,7 +112,6 @@
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
-            <version>3.0.2</version>
         </dependency>
     </dependencies>
 
@@ -132,6 +131,16 @@
                     </annotationProcessorPaths>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                </configuration>
+            </plugin>
+
+            <!-- Specify the Spring Boot Maven Plugin with mainClass -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.1.5</version> <!-- Adjust as per your Spring Boot version -->
+                <configuration>
+                    <mainClass>com.shield.server.Server</mainClass>
                 </configuration>
             </plugin>
         </plugins>
